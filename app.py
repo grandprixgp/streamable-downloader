@@ -75,8 +75,11 @@ if request.status_code == 200:
     os.chdir(videos_directory)
 
     for video in data:
-        ydl.download([video["json"]["url"]])
-        os.rename(video["location_on_disk"], videos_directory + "\\" + video["filename"])
+        if not os.path.isfile(video["location_on_disk"]) and not os.path.isfile(videos_directory + "\\" + video["filename"]):
+            ydl.download([video["json"]["url"]])
+            os.rename(video["location_on_disk"], videos_directory + "\\" + video["filename"])
+        elif os.path.isfile(video["location_on_disk"]) and not os.path.isfile(videos_directory + "\\" + video["filename"]):
+            os.rename(video["location_on_disk"], videos_directory + "\\" + video["filename"])
         video_gdrive_file = drive.CreateFile({"parents": [{"kind": "drive#fileLink", "id": folder_id}]})
         video_gdrive_file.SetContentFile(video["filename"])
         video_gdrive_file.Upload()
